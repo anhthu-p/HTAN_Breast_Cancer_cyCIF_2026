@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"r:\\\\Thu\\\\From_2026\\\\6. Other\\\\DL_Summer_2026\")",
+      "Bash(Measure-Object)",
+      "Bash(Select-Object -ExpandProperty Count)"
+    ]
+  }
+}

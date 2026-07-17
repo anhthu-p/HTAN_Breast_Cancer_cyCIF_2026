@@ -1,4 +1,4 @@
-name: D:\conda_envs\instanseg
+name: D:\Thu\conda_envs\instanseg # change for Ctrl 
 channels:
   - conda-forge
   - defaults

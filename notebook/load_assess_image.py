@@ -7,7 +7,7 @@ import pandas as pd
 import zarr
 from itertools import cycle
 import numpy as np
-
+from tqdm import tqdm 
 import matplotlib.pyplot as plt  # ADDED: needed by get_histogram
 import sys
 sys.path.append('unify_biomarker_name')
@@ -75,6 +75,7 @@ class AssessImage:
     def view_images(self,
                     biomarkers_of_interest:list,
                     resolution_level:int,
+                    low_high_auto_contrast=None,
                     colors_list=None):
         # put library here because it's heavy instead of putting it on top of the file:
         import napari
@@ -90,22 +91,31 @@ class AssessImage:
         img_full=zarr.open(self.loader.image_store,mode='r') # put it outside of loop to reduce cost
 
 
-        for biomarker,channel_index in self.biomarker_channel.items():
+        for biomarker,channel_index in tqdm(self.biomarker_channel.items(),desc="Finding biomarkers"):
             if biomarker in biomarkers_of_interest:
                 img=img_full[str(resolution_level)][int(channel_index)]
-                low, high = np.percentile(img, (2.5, 99.8))
-                viewer.add_image(img, name=f'{self.loader.file_name}___{biomarker}', blending='additive',
-                                            contrast_limits=[low, high], colormap=colors_list[biomarkers_of_interest.index(biomarker) % len(colors_list)])
+                if low_high_auto_contrast:
+                    low, high = np.percentile(img, (2.5, 99.8))
+                    viewer.add_image(img, name=f'{self.loader.file_name}___{biomarker}', blending='additive',
+                                    contrast_limits=[low, high], colormap=colors_list[biomarkers_of_interest.index(biomarker) % len(colors_list)])
+                else:
+                    viewer.add_image(img, name=f'{self.loader.file_name}___{biomarker}', blending='additive', colormap=colors_list[biomarkers_of_interest.index(biomarker) % len(colors_list)])
         return viewer
     
+    def assess_single_image(self, biomarker: str, resolution_level: int):
+        image_full = zarr.open(self.loader.image_store, mode='r')
+        single_image = image_full[str(resolution_level)][int(self.biomarker_channel[biomarker])]
+        
+        return single_image
 
-    #####____________STASTS_____________#####
+
+    ################################################____________STASTS_____________#########################################################################
     '''
     Metric-------------------------	Starting threshold--------------------Reasoning
     5th percentile (background)	    > 5% of max bit depth	              For 16-bit images (max 65535), flag if 5th pct > ~1000
-    CV of background	            < 0.1 → uniform, > 0.3 → uneven	      Rough split; calibrate on your data
     SNR	                            < 3 → poor, > 10 → good	              Physics-based: 3-sigma rule is the minimum to distinguish signal from noise
     Dynamic range	                < 10% of bit depth → flat	          For 16-bit, flag if 99th - 5th pct < ~2000
+    CV of background	            < 0.1 → uniform, > 0.3 → uneven	      Rough split; calibrate on your data
     '''
 
     def get_stats(self, resolution_level) -> pd.DataFrame:
@@ -134,11 +144,11 @@ class AssessImage:
         return pd.DataFrame(rows)
     
     def _generate_flag(self, fifth_pct, cv_bg, snr, dyn_range) -> str:
-        high_bg = fifth_pct > 1000
+        high_bg = fifth_pct > 500
         high_cv = cv_bg > 0.3
         low_cv  = cv_bg < 0.1
-        low_snr = snr < 3
-        flat    = dyn_range < 2000
+        low_snr = snr < 1
+        flat    = dyn_range < 200
 
         if high_bg and high_cv:
             return "CRITICAL: uneven illumination → BaSiCPy"

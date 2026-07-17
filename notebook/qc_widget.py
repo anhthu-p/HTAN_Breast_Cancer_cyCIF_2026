@@ -8,19 +8,20 @@ class QCWidget(QWidget):
 
     def __init__(self,
                  viewer,
+                 assessor,
                  flagged_df,
                  save_path,
-                 assessor,
                  resolution_level):
         # what is flagged_df: not_okay biomarker
         # save_path: write df about decision where approve or need to be correct
         super().__init__()
+        self.loader            = assessor.loader
+        self.biomarker_channel = assessor.biomarker_channel
         self.viewer           = viewer
         self.df = flagged_df.copy().reset_index(drop=True) 
         self.df['decision'] = None
         self.df['notes']    = None
-        self.save_path        = save_path
-        self.assessor         = assessor             # must be before _load_current
+        self.save_path        = save_path        # must be before _load_current
         self.resolution_level = resolution_level     # must be before _load_current
         self.idx              = 0
 
@@ -86,7 +87,7 @@ class QCWidget(QWidget):
 
     def _load_image(self):
         row      = self.df.iloc[self.idx]
-        img_full = zarr.open(self.assessor.loader.image_store, mode='r')
+        img_full = zarr.open(self.loader.image_store, mode='r')
         self.viewer.layers.clear()
 
         img = img_full[str(self.resolution_level)][int(row['channel_index'])]
@@ -95,7 +96,7 @@ class QCWidget(QWidget):
                             contrast_limits=[low, high],
                             colormap='gray', blending='additive')
 
-        dna_idx = int(self.assessor.biomarker_channel['dna'])
+        dna_idx = int(self.biomarker_channel['dna'])
         img_dna = img_full[str(self.resolution_level)][dna_idx]
         low, high = np.percentile(img_dna, (2.5, 99.8))
         self.viewer.add_image(img_dna, name='dna',

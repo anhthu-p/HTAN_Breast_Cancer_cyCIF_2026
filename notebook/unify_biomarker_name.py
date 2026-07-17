@@ -1,4 +1,6 @@
+from __future__ import annotations
 import re
+
 
 # ── Normalization helper ───────────────────────────────────────────────────────
 def normalize(s: str) -> str:
@@ -20,6 +22,18 @@ def normalize(s: str) -> str:
 
 CANONICAL: dict[str, str] = {
 
+    # DAPI
+    normalize('DAPI1'): 'dna',
+    normalize('DAPI2'): 'dna(2)',
+    normalize('DAPI3'): 'dna(3)',
+    normalize('DAPI4'): 'dna(4)',
+    normalize('DAPI5'): 'dna(5)',
+    normalize('DAPI6'): 'dna(6)',
+    normalize('DAPI7'): 'dna(7)',
+    normalize('DAPI8'): 'dna(8)',
+    normalize('DAPI9'): 'dna(9)',
+    normalize('DAPI10'): 'dna(10)',
+
     # ── Nuclear / DNA-damage ─────────────────────────────────────────────────
     normalize('53BP1'):                       '53BP1',
     normalize('Histone H2AX'):               'gH2AX',      # H2AX phospho-S139
@@ -40,10 +54,10 @@ CANONICAL: dict[str, str] = {
     # ── Cell cycle ───────────────────────────────────────────────────────────
     normalize('Antigen Ki67'):                'Ki67',
     normalize('Ki67'):                        'Ki67',
-    normalize('G1/S-specific cyclin-D1'):     'CCND1',
-    normalize('CCND1'):                       'CCND1',
-    normalize('Rb (pS807; pS811)'):           'pRb',
-    normalize('pRB'):                         'pRb',
+    normalize('G1/S-specific cyclin-D1'):     'Cyclin_D1',
+    normalize('CCND1'):                       'Cyclin_D1',
+    normalize('Rb (pS807; pS811)'):           'pRB',
+    normalize('pRB'):                         'pRB',
     normalize('p21'):                         'p21',
     normalize('p53'):                         'p53',
     normalize('pRPA'):                        'pRPA',
@@ -89,6 +103,7 @@ CANONICAL: dict[str, str] = {
     normalize('aSMA'):                        'aSMA',
     normalize('Podoplanin'):                  'PDPN',
     normalize('PDPN'):                        'PDPN',
+    normalize('Podoplanin'):                   'PDPN',
     normalize('TUBB3'):                       'TUBB3',
     normalize('Glut1'):                       'Glut1',
     normalize('CGA'):                         'CGA',        # Chromogranin A
@@ -174,7 +189,7 @@ def validate_panel(channel_dict: dict, strict: bool = False) -> list[str]:
     Returns a list of warning strings for unmapped names.
     Raises ValueError if strict=True and any are unmapped.
     """
-    skip_prefixes = ('dna', 'dapi', 'control', 'autofluorescence')
+    skip_prefixes = ('dna', 'control', 'autofluorescence')
     warnings = []
     for name in channel_dict:
         if any(normalize(name).startswith(p) for p in skip_prefixes):

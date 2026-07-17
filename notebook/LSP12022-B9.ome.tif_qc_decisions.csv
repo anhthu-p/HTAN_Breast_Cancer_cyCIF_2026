@@ -1,0 +1,11 @@
+biomarker,channel_index,fifth_pct,cv_background,snr,dynamic_range,flag,decision,notes
+control555nm,2,106.0,0.057899992302856904,149.02862778725944,966.0,WARNING: narrow dynamic range → CLAHE or normalization,approved,
+control647nm,3,440.0,0.023890748478944495,173.81319255876596,1867.0,WARNING: narrow dynamic range → CLAHE or normalization,approved,
+CD45,11,2231.0,0.005521214949308911,348.0415788215463,4297.809999999998,WARNING: uniform background → rolling ball subtraction,approved,
+pRb,18,156.0,0.029110845386734426,219.1869315093737,1016.0,WARNING: narrow dynamic range → CLAHE or normalization,approved,
+p21,19,1838.0,0.003109779282538258,172.81412758290054,990.0,WARNING: uniform background → rolling ball subtraction,approved,
+PD1,23,2225.0,0.008904372712920921,52.2481503624062,1043.0,WARNING: uniform background → rolling ball subtraction,approved,
+HER2,27,2297.0,0.010665578843904757,138.01249347555094,3414.0,WARNING: uniform background → rolling ball subtraction,approved,
+gH2AX,35,1217.0,0.004706293168883611,239.1702586495939,1375.0,WARNING: uniform background → rolling ball subtraction,approved,WARNING: Artifact
+PR,37,1009.0,0.00823004106749842,264.34846162941307,2212.0,WARNING: uniform background → rolling ball subtraction,,
+HLA-A,38,476.0,0.01674523590075006,219.04402368959308,1770.0,WARNING: narrow dynamic range → CLAHE or normalization,,
